@@ -114,6 +114,7 @@ def autoNorm(dataSet):
     # 生成与最小值之差组成的矩阵
     normDataSet = dataSet - tile(minVals, (m, 1))
     normDataSet = normDataSet / tile(ranges, (m, 1))
+    # 用归一化后的矩阵来作为用于分类的inX
     return normDataSet, ranges, minVals
 
 
