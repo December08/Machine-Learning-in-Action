@@ -160,14 +160,18 @@ def createTree(dataSet, labels):
         return classList[0]
     # 如果数据集只有1列，那么最初出现label次数最多的一类，作为结果
     # 第二个停止条件：使用完了所有特征，仍然不能将数据集划分成仅包含唯一类别的分组。
+    # 遍历完所有特征时返回出现次数最多的类别
     if len(dataSet[0]) == 1:
         return majorityCnt(classList)
     # 选择最优的列，得到最优列对应的label含义——获取label的位置
     bestFeat = chooseBestFeatureToSplit(dataSet)
     # 获取label的名称
     bestFeatLabel = labels[bestFeat]
+    # print('bestFeatLabel:', bestFeatLabel)
     # 初始化myTree
+    # 嵌套字典，bestFeatLabel: {}中包含的关键字就是bestFeatLabel的两个子节点
     myTree = {bestFeatLabel: {}}
+    # print('初始化处', myTree)
     # 注：labels列表是可变对象，在PYTHON函数中作为参数时传址引用，能够被全局修改
     # 所以这行代码导致函数外的同名变量被删除了元素，造成例句无法执行，提示'no surfacing' is not in list
     del(labels[bestFeat])
@@ -180,6 +184,14 @@ def createTree(dataSet, labels):
         subLabels = labels[:]
         # 遍历当前选择特征包含的所有属性，在每个数据集划分上递归调用createTree()
         myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)
+        #                                                                                                           print('value=', value, myTree[bestFeatLabel][value])
+    # print('结束循环后：', myTree)
+    '''
+        变量myTree包含了很多代表树结构信息的嵌套字典，从左边开始，第一个关键字no surfacing是第一个划分数据集的特征名称，该关键字的值
+        也是另一个数据字典。第二个关键字是no surfacing特征划分的数据集，这些关键字的值是no surfacing节点的子节点。这些值可能是类标签，
+        也可能是另一个数据字典。如果值是类标签，则该子节点是叶子结点，如果值是另一个数据字典，则子节点是一个判断节点，这种格式不断重复
+        就构成了整棵树。
+    '''
     return myTree
 
 
@@ -216,6 +228,7 @@ def fishTest():
     # 1.创建数据和结果标签
     myDat, labels = createDataSet()
     myTree = createTree(myDat, copy.deepcopy(labels))
+    print(myTree)
     print(classify(myTree, labels, [1, 0]))
     dtPlot.createPlot(myTree)
 
